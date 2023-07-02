@@ -22,8 +22,6 @@ func main() {
 	}
 	log.Println("Config loaded")
 
-	config.C = cfg
-
 	ctx := context.Background()
 	httpServer := server.NewServer(cfg)
 	go func() {
