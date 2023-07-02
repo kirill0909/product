@@ -22,7 +22,7 @@ func NewServer(cfg *config.Config) *Server {
 }
 
 func (s *Server) Run(ctx context.Context) error {
-	if err := s.MapHandlers(ctx, s.fiber); err != nil {
+	if err := s.MapHandlers(ctx, s.fiber, s.cfg); err != nil {
 		log.Fatalf("Cannot map handlers: %s", err.Error())
 	}
 	if err := s.fiber.Listen(fmt.Sprintf("%s:%s", s.cfg.Server.Host, s.cfg.Server.HTTPPort)); err != nil {
