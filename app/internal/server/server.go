@@ -35,9 +35,9 @@ type Server struct {
 	deps  Deps
 }
 
-func NewServer(cfg *config.Config) *Server {
+func NewServer(app *fiber.App, deps Deps, cfg *config.Config) *Server {
 	return &Server{
-		fiber: fiber.New(fiber.Config{DisableStartupMessage: true}),
+		fiber: app,
 		grpc: grpc.NewServer(
 			grpc.UnaryInterceptor(
 				grpc_middleware.ChainUnaryServer(
@@ -46,18 +46,12 @@ func NewServer(cfg *config.Config) *Server {
 				),
 			),
 		),
-		deps: Deps{},
+		deps: deps,
 		cfg:  cfg,
 	}
 }
 
 func (s *Server) Run(ctx context.Context) error {
-	if err := s.MapHandlers(ctx, s.fiber, s.cfg); err != nil {
-		log.Printf("Cannot map handlers: %s", err.Error())
-		return err
-	}
-	log.Println("Map handled")
-
 	go func(s *Server) {
 		log.Printf("HTTP Server starts on: %s:%s", s.cfg.Server.Host, s.cfg.Server.HTTPPort)
 		if err := runHTTP(ctx, s); err != nil {
