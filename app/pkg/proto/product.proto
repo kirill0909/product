@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+option go_package = "./";
+
+package proto;
+
+service Product {
+  rpc AddProduct(AddProductRequest) returns (AddProductResponse) {}
+}
+
+message AddProductRequest {
+  string Name = 1;
+  double Price = 2;
+}
+
+message AddProductResponse {
+  int64 ID = 1;
+}
