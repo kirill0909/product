@@ -23,13 +23,11 @@ func main() {
 	log.Println("Config loaded")
 
 	ctx := context.Background()
-	httpServer := server.NewServer(cfg)
-	go func() {
-		log.Printf("HTTP Server starts on: %s:%s", cfg.Server.Host, cfg.Server.HTTPPort)
-		if err := httpServer.Run(ctx); err != nil {
-			log.Fatal(err)
-		}
-	}()
+	server := server.NewServer(cfg)
+	if err := server.Run(ctx); err != nil {
+		log.Println(err)
+		return
+	}
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt, syscall.SIGTERM)

@@ -15,6 +15,7 @@ type Config struct {
 type Server struct {
 	Host     string `validate:"required"`
 	HTTPPort string `validate:"required"`
+	GRPCPort string `validate:"required"`
 }
 
 func LoadConfig() (*viper.Viper, error) {

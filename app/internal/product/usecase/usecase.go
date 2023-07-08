@@ -15,5 +15,5 @@ func NewProducetUsecase(cfg *config.Config) product.Usecase {
 }
 
 func (u *ProductUsecase) GetProduct(request models.GetProductRequest) (result models.GetProductResponse, err error) {
-	return models.GetProductResponse{ID: request.ID, Name: "Best Product", Price: 10}, nil
+	return models.GetProductResponse{ID: request.ID, Name: "Best of the best Product", Price: 10}, nil
 }
