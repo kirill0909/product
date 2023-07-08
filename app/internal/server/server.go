@@ -101,3 +101,14 @@ func runGRPC(ctx context.Context, s *Server) error {
 
 	return nil
 }
+
+func (s *Server) Shutdown() {
+	if err := s.fiber.Shutdown(); err != nil {
+		log.Println(err)
+		return
+	}
+	log.Println("HTTP Server was stoped properly")
+
+	s.grpc.GracefulStop()
+	log.Println("gRPC Server was stoped properly")
+}
