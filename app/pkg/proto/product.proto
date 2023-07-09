@@ -7,6 +7,7 @@ package proto;
 service Product {
   rpc AddProduct(AddProductRequest) returns (AddProductResponse) {}
   rpc GetProduct(GetProductRequest) returns (GetProductResponse) {}
+  rpc GetProductsByPrice(GetProductsByPriceRequest) returns (stream GetProductsByPriceResponse) {}
 }
 
 message AddProductRequest {
@@ -23,6 +24,15 @@ message GetProductRequest {
 }
 
 message GetProductResponse {
+  string Name = 1;
+  double Price = 2;
+}
+
+message GetProductsByPriceRequest {
+  double Price = 1;
+}
+
+message GetProductsByPriceResponse {
   string Name = 1;
   double Price = 2;
 }

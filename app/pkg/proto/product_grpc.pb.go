@@ -24,6 +24,7 @@ const _ = grpc.SupportPackageIsVersion7
 type ProductClient interface {
 	AddProduct(ctx context.Context, in *AddProductRequest, opts ...grpc.CallOption) (*AddProductResponse, error)
 	GetProduct(ctx context.Context, in *GetProductRequest, opts ...grpc.CallOption) (*GetProductResponse, error)
+	GetProductsByPrice(ctx context.Context, in *GetProductsByPriceRequest, opts ...grpc.CallOption) (Product_GetProductsByPriceClient, error)
 }
 
 type productClient struct {
@@ -52,12 +53,45 @@ func (c *productClient) GetProduct(ctx context.Context, in *GetProductRequest, o
 	return out, nil
 }
 
+func (c *productClient) GetProductsByPrice(ctx context.Context, in *GetProductsByPriceRequest, opts ...grpc.CallOption) (Product_GetProductsByPriceClient, error) {
+	stream, err := c.cc.NewStream(ctx, &Product_ServiceDesc.Streams[0], "/proto.Product/GetProductsByPrice", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &productGetProductsByPriceClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type Product_GetProductsByPriceClient interface {
+	Recv() (*GetProductsByPriceResponse, error)
+	grpc.ClientStream
+}
+
+type productGetProductsByPriceClient struct {
+	grpc.ClientStream
+}
+
+func (x *productGetProductsByPriceClient) Recv() (*GetProductsByPriceResponse, error) {
+	m := new(GetProductsByPriceResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // ProductServer is the server API for Product service.
 // All implementations must embed UnimplementedProductServer
 // for forward compatibility
 type ProductServer interface {
 	AddProduct(context.Context, *AddProductRequest) (*AddProductResponse, error)
 	GetProduct(context.Context, *GetProductRequest) (*GetProductResponse, error)
+	GetProductsByPrice(*GetProductsByPriceRequest, Product_GetProductsByPriceServer) error
 	mustEmbedUnimplementedProductServer()
 }
 
@@ -70,6 +104,9 @@ func (UnimplementedProductServer) AddProduct(context.Context, *AddProductRequest
 }
 func (UnimplementedProductServer) GetProduct(context.Context, *GetProductRequest) (*GetProductResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetProduct not implemented")
+}
+func (UnimplementedProductServer) GetProductsByPrice(*GetProductsByPriceRequest, Product_GetProductsByPriceServer) error {
+	return status.Errorf(codes.Unimplemented, "method GetProductsByPrice not implemented")
 }
 func (UnimplementedProductServer) mustEmbedUnimplementedProductServer() {}
 
@@ -120,6 +157,27 @@ func _Product_GetProduct_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Product_GetProductsByPrice_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(GetProductsByPriceRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(ProductServer).GetProductsByPrice(m, &productGetProductsByPriceServer{stream})
+}
+
+type Product_GetProductsByPriceServer interface {
+	Send(*GetProductsByPriceResponse) error
+	grpc.ServerStream
+}
+
+type productGetProductsByPriceServer struct {
+	grpc.ServerStream
+}
+
+func (x *productGetProductsByPriceServer) Send(m *GetProductsByPriceResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
 // Product_ServiceDesc is the grpc.ServiceDesc for Product service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -136,6 +194,12 @@ var Product_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Product_GetProduct_Handler,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "GetProductsByPrice",
+			Handler:       _Product_GetProductsByPrice_Handler,
+			ServerStreams: true,
+		},
+	},
 	Metadata: "product.proto",
 }

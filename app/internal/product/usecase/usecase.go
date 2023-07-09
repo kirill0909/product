@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"fmt"
+	"log"
 	"product/config"
 	models "product/internal/models/product"
 	"product/internal/product"
@@ -55,4 +56,25 @@ func (u *ProductUsecase) GetProductByGRPC(
 	}
 
 	return &pb.GetProductResponse{Name: result.GetName(), Price: result.GetPrice()}, nil
+}
+
+func (u *ProductUsecase) GetProductsByPrice(
+	req *pb.GetProductsByPriceRequest, stream pb.Product_GetProductsByPriceServer) error {
+
+	u.productMap.Range(func(key, value any) bool {
+		product, ok := value.(*pb.AddProductRequest)
+		if !ok {
+			return false
+		}
+
+		if product.GetPrice() <= req.GetPrice() {
+			if err := stream.Send(&pb.GetProductsByPriceResponse{Name: product.Name, Price: product.Price}); err != nil {
+				log.Println(err)
+				return false
+			}
+		}
+		return true
+	})
+
+	return nil
 }
