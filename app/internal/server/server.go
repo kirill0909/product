@@ -12,6 +12,8 @@ import (
 
 	pb "product/pkg/proto"
 
+	"google.golang.org/grpc/reflection"
+
 	"os"
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
@@ -81,6 +83,7 @@ func runHTTP(ctx context.Context, s *Server) error {
 
 func runGRPC(ctx context.Context, s *Server) error {
 	pb.RegisterProductServer(s.grpc, s.deps.ProductDeps)
+	reflection.Register(s.grpc)
 
 	l, err := net.Listen("tcp", s.cfg.Server.Host+":"+s.cfg.Server.GRPCPort)
 	if err != nil {
