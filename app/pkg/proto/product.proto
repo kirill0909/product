@@ -6,6 +6,7 @@ package proto;
 
 service Product {
   rpc AddProduct(AddProductRequest) returns (AddProductResponse) {}
+  rpc GetProduct(GetProductRequest) returns (GetProductResponse) {}
 }
 
 message AddProductRequest {
@@ -15,4 +16,13 @@ message AddProductRequest {
 
 message AddProductResponse {
   int64 ID = 1;
+}
+
+message GetProductRequest {
+  int64 ID = 1;
+}
+
+message GetProductResponse {
+  string Name = 1;
+  double Price = 2;
 }
